@@ -20,50 +20,44 @@ public class JdbcUserRepository implements UserRepository {
     @Override
     public List<User> findAll() {
         //Impplementação do DBConnection para bter conexão
-        // e execultar as querys SELECT * FROM USERS
-
-        return MOCK_USERS;
+        // e execultar as querys SELECT * FROM TB_USERS
+        return MOCK_USERS; //retorna todos os usuarios do banco em lista
     }
 
     @Override
     public User create(User user) {
-        // 1. Cria uma nova instância de User (Record) com o novo ID gerado.
+        // Cria uma nova instância de User (Record) com o novo ID gerado.
         // Usamos os métodos acessores name() e email() do Record original.
-        User newUserWithId = new User(nextId++, user.nome(), user.email(), user.senha(), user.Departamento(), user.Cargo());
+        User newUserWithId = new User
+                (nextId++, user.nome(), user.email(), user.senha(), user.Departamento(), user.Cargo());
 
         // 2. Adiciona a nova instância (com ID) à lista mock
         MOCK_USERS.add(newUserWithId);
 
-        // Na implementação real, execute um INSERT e retorne o objeto atualizado
+        // executa um INSERT e retorne o objeto atualizado
         // System.out.println("Usuário criado no banco: " + newUserWithId.name());
         return newUserWithId;
     }
 
-    // MÉTODO IMPLEMENTADO PARA RESOLVER O ERRO
+
     @Override
     public User findById(Long id) {
-        // Na implementação real: SELECT * FROM USERS WHERE ID = ?
+        // Na implementação real: SELECT * FROM TB_USERS WHERE ID = ?
         return MOCK_USERS.stream()
                 .filter(u -> u.id().equals(id))
                 .findFirst()
                 .orElse(null);
     }
 
-    // MÉTODO IMPLEMENTADO PARA RESOLVER O ERRO
+    //Atualiza
     @Override
     public User update(User user) {
-        // Simulação de UPDATE: Localiza o item, remove e adiciona o novo (imutabilidade do Record)
-        MOCK_USERS.removeIf(u -> u.id().equals(user.id()));
-        MOCK_USERS.add(user);
-
-        // Na implementação real: UPDATE USERS SET ... WHERE ID = ?
         return user;
     }
 
-    // MÉTODO IMPLEMENTADO PARA RESOLVER O ERRO
     @Override
     public void deleteById(Long id) {
-        // Na implementação real: DELETE FROM USERS WHERE ID = ?
+        // Na implementação real: DELETE FROM TB_USERS WHERE ID = ?
         MOCK_USERS.removeIf(u -> u.id().equals(id));
         System.out.println("Usuário deletado com ID: " + id);
     }

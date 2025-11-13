@@ -5,16 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0cf7dcae-a214-4b11-b41f-a3a8fa07a628" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/br/com/fiap/dao/DBConnection.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/br/com/fiap/models/SessionWork.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/br/com/fiap/repository/JdbcUserRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/br/com/fiap/repository/UserRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/br/com/fiap/resources/SessionResource.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/com/fiap/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/fiap/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/com/fiap/models/Usuario.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/fiap/models/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/com/fiap/resources/UsuarioResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/fiap/resources/UserResource.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/br/com/fiap/repository/JdbcUserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/fiap/repository/JdbcUserRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/br/com/fiap/resources/UserResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/fiap/resources/UserResource.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -98,7 +91,7 @@
       <workItem from="1763032889425" duration="2801000" />
       <workItem from="1763035817760" duration="267000" />
       <workItem from="1763036102809" duration="484000" />
-      <workItem from="1763036618852" duration="4326000" />
+      <workItem from="1763036618852" duration="8468000" />
     </task>
     <servers />
   </component>
