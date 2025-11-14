@@ -6,6 +6,6 @@ public record User(
         String email,
         String senha,
         String Departamento,
-        String Cargo
-        //,Timestamp DataAdimisao
+        String Cargo,
+        Timestamp DataAdimisao
 ) {}

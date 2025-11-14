@@ -11,7 +11,7 @@ public class DBConnection {
 
     //Variaveis esondidas devem ser colocadas no sistema
     private static final String USER = System.getenv("DB_USER");
-    private static final String PASS = System.getenv("DB_PASSWORD");
+    private static final String PASS = System.getenv("DB_PASS");
 
     public static Connection getConnection() throws SQLException {
         Connection conn = DriverManager.getConnection(URL, USER, PASS);

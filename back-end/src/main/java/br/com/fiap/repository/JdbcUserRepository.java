@@ -25,6 +25,15 @@ public class JdbcUserRepository implements UserRepository {
     }
 
     @Override
+    public User findById(Long id) {
+        // Na implementação real: SELECT * FROM TB_USERS WHERE ID = ?
+        return MOCK_USERS.stream()
+                .filter(u -> u.id().equals(id))
+                .findFirst()
+                .orElse(null);
+    }
+
+    @Override
     public User create(User user) {
         // Cria uma nova instância de User (Record) com o novo ID gerado.
         // Usamos os métodos acessores name() e email() do Record original.
@@ -37,16 +46,6 @@ public class JdbcUserRepository implements UserRepository {
         // executa um INSERT e retorne o objeto atualizado
         // System.out.println("Usuário criado no banco: " + newUserWithId.name());
         return newUserWithId;
-    }
-
-
-    @Override
-    public User findById(Long id) {
-        // Na implementação real: SELECT * FROM TB_USERS WHERE ID = ?
-        return MOCK_USERS.stream()
-                .filter(u -> u.id().equals(id))
-                .findFirst()
-                .orElse(null);
     }
 
     //Atualiza
