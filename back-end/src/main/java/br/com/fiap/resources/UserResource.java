@@ -7,6 +7,7 @@ import br.com.fiap.repository.UserRepository;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.glassfish.grizzly.http.server.Session;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,4 +52,22 @@ public class UserResource {
         return Response.status(Response.Status.CREATED).entity(newUser).build();
     }
 
+    @POST
+    @Path("{id}/sessions")
+    public Response startSession(@PathParam("id") int idUser) {
+
+      return Response.status(Response.Status.CREATED).build();
+    }
+
+    @PUT
+    @Path("{id}")
+    public Response updateUser(@PathParam("id") int id) {
+        return Response.status(Response.Status.ACCEPTED).build();
+    }
+
+    @DELETE
+    @Path("{id}")
+    public Response deleteUser(@PathParam("id") int id) {
+        return Response.status(204).build();
+    }
 }

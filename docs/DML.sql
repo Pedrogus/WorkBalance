@@ -8,20 +8,20 @@
 -- Inserção de dados em TB_USERS
 -- =============================================================================
 
-INSERT INTO TB_USERS (ID_USER, NOME, EMAIL, SENHA, DEPARTAMENTO, CARGO, DATA_CADASTRO)
-VALUES (1, 'João Silva', 'joao.silva@empresa.com', 'senha123', 'TI', 'Desenvolvedor', SYSDATE);
+INSERT INTO TB_USERS (ID_USER, NOME, EMAIL, SENHA, DEPARTAMENTO, CARGO)
+VALUES (1, 'João Silva', 'joao.silva@empresa.com', 'senha123', 'TI', 'Desenvolvedor');
 
-INSERT INTO TB_USERS (ID_USER, NOME, EMAIL, SENHA, DEPARTAMENTO, CARGO, DATA_CADASTRO)
-VALUES (2, 'Maria Santos', 'maria.santos@empresa.com', 'senha456', 'RH', 'Gerente de RH', SYSDATE);
+INSERT INTO TB_USERS (ID_USER, NOME, EMAIL, SENHA, DEPARTAMENTO, CARGO)
+VALUES (2, 'Maria Santos', 'maria.santos@empresa.com', 'senha456', 'RH', 'Gerente de RH');
 
-INSERT INTO TB_USERS (ID_USER, NOME, EMAIL, SENHA, DEPARTAMENTO, CARGO, DATA_CADASTRO)
-VALUES (3, 'Pedro Oliveira', 'pedro.oliveira@empresa.com', 'senha789', 'TI', 'Analista de Sistemas', SYSDATE);
+INSERT INTO TB_USERS (ID_USER, NOME, EMAIL, SENHA, DEPARTAMENTO, CARGO)
+VALUES (3, 'Pedro Oliveira', 'pedro.oliveira@empresa.com', 'senha789', 'TI', 'Analista de Sistemas');
 
-INSERT INTO TB_USERS (ID_USER, NOME, EMAIL, SENHA, DEPARTAMENTO, CARGO, DATA_CADASTRO)
-VALUES (4, 'Ana Costa', 'ana.costa@empresa.com', 'senha101', 'Marketing', 'Especialista em Marketing', SYSDATE);
+INSERT INTO TB_USERS (ID_USER, NOME, EMAIL, SENHA, DEPARTAMENTO, CARGO)
+VALUES (4, 'Ana Costa', 'ana.costa@empresa.com', 'senha101', 'Marketing', 'Especialista em Marketing');
 
-INSERT INTO TB_USERS (ID_USER, NOME, EMAIL, SENHA, DEPARTAMENTO, CARGO, DATA_CADASTRO)
-VALUES (5, 'Carlos Mendes', 'carlos.mendes@empresa.com', 'senha202', 'Financeiro', 'Analista Financeiro', SYSDATE);
+INSERT INTO TB_USERS (ID_USER, NOME, EMAIL, SENHA, DEPARTAMENTO, CARGO)
+VALUES (5, 'Carlos Mendes', 'carlos.mendes@empresa.com', 'senha202', 'Financeiro', 'Analista Financeiro');
 
 -- =============================================================================
 -- Inserção de dados em TB_SESSIONS

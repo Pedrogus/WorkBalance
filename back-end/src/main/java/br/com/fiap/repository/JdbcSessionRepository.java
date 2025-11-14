@@ -20,6 +20,11 @@ public class JdbcSessionRepository implements SessionRepository {
     }
 
     @Override
+    public SessionWork findOpenSessionById(Long idUser) {
+        return null;
+    }
+
+    @Override
     public SessionWork create(Session session) {
         return null;
         //Cria uma sessão nova.
@@ -35,5 +40,6 @@ public class JdbcSessionRepository implements SessionRepository {
     public void delete(Long id) {
         //Coloca a implementação de DELETE pelo id da sessão.
     }
+
 
 }

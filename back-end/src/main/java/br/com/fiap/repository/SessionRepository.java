@@ -14,6 +14,8 @@ public interface SessionRepository {
     //Pesquisa as sessões de um usuario especifico.
     List<SessionWork> findAllById(Long idUser);
 
+    SessionWork findOpenSessionById(Long idUser);
+
     //Cria e atualiza uma sessão
     SessionWork create(Session session);
     

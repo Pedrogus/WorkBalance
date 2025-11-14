@@ -4,15 +4,14 @@
 -- =============================================================================
 
 -- Tabela TB_USERS
--- Armazena informações dos colaboradores
+-- Armazena informações dos usuarios do sistema
 CREATE TABLE TB_USERS (
     ID_USER         NUMBER(10) PRIMARY KEY,
     NOME            VARCHAR2(100) NOT NULL,
     EMAIL           VARCHAR2(100) UNIQUE NOT NULL,
     SENHA           VARCHAR2(100) NOT NULL,
     DEPARTAMENTO    VARCHAR2(50),
-    CARGO           VARCHAR2(50),
-    DATA_CADASTRO   DATE DEFAULT SYSDATE
+    CARGO           VARCHAR2(50)
 );
 
 -- Tabela TB_SESSIONS
