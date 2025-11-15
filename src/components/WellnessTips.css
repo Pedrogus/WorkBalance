@@ -1,0 +1,173 @@
+.wellness-tips {
+  background: var(--surface);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  box-shadow: var(--shadow);
+}
+
+.section-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.section-header p {
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+}
+
+.tips-section {
+  margin-bottom: 3rem;
+}
+
+.tips-section h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.section-subtitle {
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.tips-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.tips-grid.personalized {
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+}
+
+.tip-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.tip-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.tip-card.urgent {
+  border-left: 4px solid var(--warning);
+  background: linear-gradient(135deg, var(--surface) 0%, #fff8f0 100%);
+}
+
+.tip-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.tip-icon {
+  font-size: 2rem;
+}
+
+.tip-category {
+  background: var(--primary-light);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.urgent-badge {
+  background: var(--warning);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.tip-card h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: var(--text-primary);
+}
+
+.tip-card p {
+  color: var(--text-secondary);
+  line-height: 1.5;
+  font-size: 0.9rem;
+}
+
+.checklist-section {
+  background: var(--background);
+  border-radius: 1rem;
+  padding: 1.5rem;
+}
+
+.checklist-section h2 {
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--surface);
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  transition: all 0.2s;
+}
+
+.checklist-item:hover {
+  border-color: var(--primary);
+}
+
+.checklist-item input[type="checkbox"] {
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 0.375rem;
+  border: 2px solid var(--border);
+  cursor: pointer;
+}
+
+.checklist-item label {
+  color: var(--text-primary);
+  cursor: pointer;
+  flex: 1;
+}
+
+.checklist-item input[type="checkbox"]:checked + label {
+  color: var(--text-secondary);
+  text-decoration: line-through;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .tips-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .tips-grid.personalized {
+    grid-template-columns: 1fr;
+  }
+  
+  .tip-header {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+}
