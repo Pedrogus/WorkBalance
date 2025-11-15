@@ -5,14 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0cf7dcae-a214-4b11-b41f-a3a8fa07a628" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/java/br/com/fiap/models/BreakLog.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/br/com/fiap/dao/DBConnection.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/fiap/dao/DBConnection.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/br/com/fiap/models/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/fiap/models/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/com/fiap/repository/JdbcSessionRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/fiap/repository/JdbcSessionRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/com/fiap/repository/SessionRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/fiap/repository/SessionRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/com/fiap/resources/SessionResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/fiap/resources/SessionResource.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/com/fiap/resources/UserResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/fiap/resources/UserResource.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../docs/DLL.sql" beforeDir="false" afterPath="$PROJECT_DIR$/../docs/DLL.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../docs/DML.sql" beforeDir="false" afterPath="$PROJECT_DIR$/../docs/DML.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/br/com/fiap/repository/JdbcUserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/fiap/repository/JdbcUserRepository.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -22,9 +19,9 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Record" />
         <option value="Interface" />
         <option value="Class" />
+        <option value="Record" />
       </list>
     </option>
   </component>
@@ -69,7 +66,7 @@
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "onboarding.tips.debug.path": "D:/WorkBalance/back-end/src/main/java/br/com/fiap/Main.java",
-    "project.structure.last.edited": "Modules",
+    "project.structure.last.edited": "Artifacts",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
     "settings.editor.selected.configurable": "database.data.views.appearance",
@@ -77,11 +74,30 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="RunManager">
+    <configuration name="Main" type="Application" factoryName="Application" nameIsGenerated="true">
+      <envs>
+        <env name="DB_USER" value="RM554415" />
+        <env name="DB_PASS" value="261204" />
+      </envs>
+      <option name="MAIN_CLASS_NAME" value="br.com.fiap.Main" />
+      <module name="back-end" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="br.com.fiap.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.27397.103" />
-        <option value="bundled-js-predefined-d6986cc7102b-3aa1da707db6-JavaScript-IU-252.27397.103" />
+        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.25557.131" />
+        <option value="bundled-js-predefined-d6986cc7102b-b598e85cdad2-JavaScript-IU-252.25557.131" />
       </set>
     </attachedChunks>
   </component>
@@ -99,6 +115,8 @@
       <workItem from="1763036102809" duration="484000" />
       <workItem from="1763036618852" duration="12554000" />
       <workItem from="1763118127668" duration="13073000" />
+      <workItem from="1763152572945" duration="1752000" />
+      <workItem from="1763168266804" duration="3511000" />
     </task>
     <servers />
   </component>

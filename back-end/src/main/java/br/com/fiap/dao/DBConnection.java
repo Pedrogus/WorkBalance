@@ -16,7 +16,7 @@ public class DBConnection {
     public static Connection getConnection() throws SQLException {
         Connection conn = DriverManager.getConnection(URL, USER, PASS);
         System.out.println("Conectado com sucesso!");
-        System.out.println(conn.getCatalog());
+
         return conn;
     }
 }

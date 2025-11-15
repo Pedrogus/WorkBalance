@@ -5,6 +5,6 @@ public record User(
         String nome,
         String email,
         String senha,
-        String Departamento,
-        String Cargo
+        String departamento,
+        String cargo
 ) {}
