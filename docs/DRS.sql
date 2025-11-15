@@ -14,6 +14,8 @@ CREATE TABLE TB_USERS_BACKUP AS SELECT * FROM TB_USERS;
 -- Criar tabela de backup para TB_SESSIONS
 CREATE TABLE TB_SESSIONS_BACKUP AS SELECT * FROM TB_SESSIONS;
 
+CREATE TABLE TB_BREAK_LOG_BACKUP AS SELECT * FROM TB_BREAK_LOG;
+
 -- =============================================================================
 -- 2. LIMPEZA E MANUTENÇÃO DE DADOS
 -- =============================================================================
