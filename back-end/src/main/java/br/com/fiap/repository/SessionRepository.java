@@ -14,12 +14,12 @@ public interface SessionRepository {
     //Pesquisa as sessões de um usuario especifico.
     List<SessionWork> findAllById(Long idUser);
 
-    SessionWork findOpenSessionById(Long idUser);
+    SessionWork findSessionById(Long id);
 
     //Cria e atualiza uma sessão
     SessionWork create(SessionWork session);
     
-    SessionWork update(Session session);
+    SessionWork update(SessionWork session);
 
     //Deleta Sessão
     void delete(Long id);

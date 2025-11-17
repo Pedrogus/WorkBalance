@@ -83,8 +83,43 @@ public class JdbcSessionRepository implements SessionRepository {
     }
 
     @Override
-    public SessionWork findOpenSessionById(Long idUser) {
-        return null;
+    public SessionWork findSessionById(Long id) {
+
+        // DQL Statement: Busca a sessão pelo ID E verifica que ainda está aberta.
+        String sql = "SELECT * FROM TB_SESSIONS WHERE ID_SESSION = ?";
+
+        SessionWork session = null;
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql))
+        {
+            // Bind do ID_SESSION
+            stmt.setLong(1, id);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    // Mapeamento dos 8 campos para o Record SessionWork.
+                    session = new SessionWork(
+                            rs.getLong("ID_SESSION"),
+                            rs.getLong("ID_USER"),
+                            rs.getTimestamp("INICIO_SESSAO"),
+                            rs.getTimestamp("FIM_SESSAO"),
+                            // O banco pode ter 0 ou NULL, mapeamos para Integer
+                            rs.getInt("DURACAO_MINUTOS"),
+                            rs.getInt("PAUSA_MINUTOS"),
+                            rs.getInt("NIVEL_CANSACO"),
+                            rs.getString("COMENTARIO")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("SQL Error (findOpenSessionById): " + e.getMessage());
+            throw new RuntimeException("Erro na consulta de sessão aberta.", e);
+        }
+
+        // Retorna a sessão ou null (resultando no 404).
+        return session;
+
     }
 
     @Override
@@ -156,8 +191,60 @@ public class JdbcSessionRepository implements SessionRepository {
     }
 
     @Override
-    public SessionWork update(Session session) {
-        return null;
+    public SessionWork update(SessionWork session) {
+
+        String sql = "UPDATE TB_SESSIONS SET FIM_SESSAO = ?, DURACAO_MINUTOS = ?, PAUSA_MINUTOS = ?, NIVEL_CANSACO = ?, COMENTARIO = ? WHERE ID_SESSION = ?";
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql))
+        {
+            int index = 1;
+
+            stmt.setTimestamp(index++, session.fimSessao());
+
+            // 2. DURACAO_MINUTOS (NUMBER)
+            if (session.duracaoMinutos() != null) {
+                stmt.setInt(index++, session.duracaoMinutos());
+            } else {
+                stmt.setNull(index++, Types.NUMERIC); // ESSENCIAL: Incrementa o índice
+            }
+
+            // 3. PAUSA_MINUTOS (NUMBER)
+            if (session.pausaMinutos() != null) {
+                stmt.setInt(index++, session.pausaMinutos());
+            } else {
+                stmt.setNull(index++, Types.NUMERIC); // ESSENCIAL
+            }
+
+            // 4. NIVEL_CANSACO (NUMBER)
+            if (session.nivelCansaco() != null) {
+                stmt.setInt(index++, session.nivelCansaco());
+            } else {
+                stmt.setNull(index++, Types.NUMERIC); // ESSENCIAL
+            }
+
+            // 5. COMENTARIO (VARCHAR2)
+            if (session.comentario() != null) {
+                stmt.setString(index++, session.comentario());
+            } else {
+                stmt.setNull(index++, Types.VARCHAR); // ESSENCIAL
+            }
+
+
+            stmt.setLong(index, session.id());
+
+            int affectedRows = stmt.executeUpdate();
+
+            if (affectedRows == 0) {
+                System.err.println("UPDATE falhou sessão ID: " + session.id() + "Não encontrada");
+                return null;
+            }
+        } catch (SQLException e) {
+            System.err.println("SQL Error (UPDATE Session): " + e.getMessage());
+            throw new RuntimeException("Erro na atualização de dados da sessão.", e);
+        }
+
+        return session;
         //Usa para fechar ou pausar ou abrir uma sessão criada
     }
 

@@ -156,7 +156,7 @@ public class JdbcUserRepository implements UserRepository {
 
 
 
-    //Atualiza
+    //Atualiza usuario.
     @Override
     public User update(User user) {
         return user;
