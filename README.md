@@ -1,3 +1,8 @@
+WorkBalance -> Projeto Global Solution
+Feito em JAVA (Jersey + Grizzly)
+
+E Banco de dados Oracle.
+
 1. Estrutura do Projeto Java
 
 Java + API REST (MAVEN), a separação de camadas fica assim:

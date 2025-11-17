@@ -7,8 +7,6 @@ DROP TABLE TB_BREAK_LOG;
 DROP TABLE TB_SESSIONS;
 DROP TABLE TB_USERS;
 
-
-
 -- Tabela TB_USERS
 -- Armazena informações dos usuarios do sistema
 CREATE TABLE TB_USERS (

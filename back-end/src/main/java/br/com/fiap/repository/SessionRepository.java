@@ -17,7 +17,7 @@ public interface SessionRepository {
     SessionWork findOpenSessionById(Long idUser);
 
     //Cria e atualiza uma sessão
-    SessionWork create(Session session);
+    SessionWork create(SessionWork session);
     
     SessionWork update(Session session);
 

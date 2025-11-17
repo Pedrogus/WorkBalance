@@ -67,18 +67,94 @@ public class JdbcUserRepository implements UserRepository {
     @Override
     public User findById(Long id) {
         // Na implementação real: SELECT * FROM TB_USERS WHERE ID = ?
-        return null;
+        String sql = "SELECT * FROM TB_USERS WHERE ID_USER = ?";
+
+        User u = null;
+
+        try (Connection conn = db.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setLong(1,id);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    u = new User(
+                            rs.getLong("ID_USER"),
+                            rs.getString("NOME"),
+                            rs.getString("EMAIL"),
+                            rs.getString("SENHA"),
+                            rs.getString("DEPARTAMENTO"),
+                            rs.getString("CARGO")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao execultar findById()" +  e.getMessage());
+            throw new RuntimeException("Erro ao execultar findById()" +  e.getMessage());
+        }
+
+        return u;
     }
 
     @Override
     public User create(User user) {
-        // Cria uma nova instância de User (Record) com o novo ID gerado.
-        // Usamos os métodos acessores name() e email() do Record original.
+        // DML Statement: Insere em 5 colunas (ID_USER é autogerado).
+        // A ordem dos '?' deve corresponder à ordem dos setString abaixo.
+        String sql =
+                "INSERT INTO TB_USERS (NOME, EMAIL, SENHA, DEPARTAMENTO, CARGO) " +
+                        "VALUES (?, ?, ?, ?, ?)";
 
-        // executa um INSERT e retorne o objeto atualizado
-        // System.out.println("Usuário criado no banco: " + newUserWithId.name());
-        return null;
+        User persistedUser = null;
+
+        try (Connection conn = db.getConnection(); // Obtém a conexão
+             // Configuração essencial para Oracle/JDBC para recuperar o ID autogerado.
+             PreparedStatement stmt = conn.prepareStatement(sql, new String[]{"ID_USER"}))
+        {
+            // 1. Bind dos 5 parâmetros: NOME, EMAIL, SENHA, DEPARTAMENTO, CARGO
+            stmt.setString(1, user.nome());
+            stmt.setString(2, user.email());
+            stmt.setString(3, user.senha());
+            // Trata campos VARCHAR2 que podem ser null (DEPARTAMENTO, CARGO)
+            stmt.setString(4, user.departamento());
+            stmt.setString(5, user.cargo());
+
+            // 2. Execução da DML.
+            int affectedRows = stmt.executeUpdate();
+
+            if (affectedRows == 0) {
+                throw new SQLException("Falha de persistência: Nenhuma linha afetada (SQL: " + sql + ").");
+            }
+
+            // 3. Recuperação do ID (Chave Primária).
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    // ID_USER (NUMBER(10)) é lido como long.
+                    long idUser = rs.getLong(1);
+
+                    // 4. Criação do novo Record User com o ID persistido.
+                    persistedUser = new User(
+                            idUser,               // ID gerado
+                            user.nome(),
+                            user.email(),
+                            user.senha(),
+                            user.departamento(),
+                            user.cargo()
+                    );
+                } else {
+                    throw new SQLException("Usuário persistido, mas ID gerado não foi recuperado pelo driver.");
+                }
+            }
+        } catch (SQLException e) {
+            // Exceções como violação da UNIQUE constraint (EMAIL) serão capturadas aqui.
+            String msg = String.format("Erro de persistência (CREATE): %s", e.getMessage());
+            System.err.println(msg);
+            throw new RuntimeException(msg, e);
+        }
+
+        System.out.println("Usuário criado com sucesso. ID: " + persistedUser.id());
+        return persistedUser;
     }
+
+
 
     //Atualiza
     @Override

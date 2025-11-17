@@ -71,6 +71,8 @@ const SessionManager = ({ onAddSession, sessions, onDeleteSession }) => {
         </button>
       </div>
 
+      {/* Formulário de Nova Sessão */}
+
       {showForm && (
         <div className="session-form-overlay">
           <div className="session-form-modal">
@@ -151,6 +153,7 @@ const SessionManager = ({ onAddSession, sessions, onDeleteSession }) => {
           </div>
         </div>
       )}
+        
 
       {/* Lista de Sessões */}
       <div className="sessions-list">

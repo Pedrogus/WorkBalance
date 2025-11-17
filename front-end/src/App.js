@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 
 // Componentes
-import Header from './components/Header';
-import Dashboard from './components/Dashboard';
-import SessionManager from './components/SessionManager';
-import Analytics from './components/Analytics';
-import WellnessTips from './components/WellnessTips';
+import Header from './components/Header/Header';
+import Dashboard from './components/Dashboard/Dashboard';
+import SessionManager from './components/SessionManager/SessionManager';
+import Analytics from './components/Analytics/Analytics';
+import WellnessTips from './components/WellnessTips/WellnessTips';
 
 function App() {
   const [sessions, setSessions] = useState([]);
