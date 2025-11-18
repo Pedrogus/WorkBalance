@@ -28,15 +28,15 @@ public class SessionService {
         Integer nivelCansacoFinal = nivelCansaco != null ? nivelCansaco : null;
 
         Timestamp fimSessao = new Timestamp(System.currentTimeMillis());
+        Instant inicio = existingSession.inicioSessao().toInstant();
+        Instant fimSessaoInstant= fimSessao.toInstant();
 
-        if (fimSessao.before(existingSession.inicioSessao())) {
-            throw new IllegalArgumentException("FIM_SESSAO não pode ser anterior a INICIO_SESSAO.");
+        // CORREÇÃO: Validação usando Instant (Agnóstica de Fuso)
+        if (fimSessaoInstant.isBefore(inicio)) {
+            throw new IllegalArgumentException("FIM_SESSAO (" + fimSessaoInstant + ") não pode ser anterior a INICIO_SESSAO (" + inicio + ").");
         }
 
         int pausaMinutos = existingSession.pausaMinutos() != null ? existingSession.pausaMinutos(): 0;
-
-        Instant inicio = existingSession.inicioSessao().toInstant();
-        Instant fimSessaoInstant= fimSessao.toInstant();
 
         long duracaoMilli = Duration.between(inicio, fimSessaoInstant).toMillis();
 

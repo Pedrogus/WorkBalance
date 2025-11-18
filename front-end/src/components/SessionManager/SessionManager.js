@@ -5,29 +5,22 @@ import './SessionManager.css';
 // FUNÇÕES UTILITÁRIAS (Formatando datas da API Java)
 // =========================================================
 const formatDate = (isoString) => {
+    // 1. Caso a data seja nula (sessão em andamento)
     if (!isoString) return 'N/A';
 
     try {
-        // 1. Limpa a string (como fizemos antes)
+        // 2. CRÍTICO: Limpa o formato não-padrão [UTC] que o backend envia
+        // Isso é fundamental para que new Date() funcione.
         const cleanedString = isoString.replace(/\[UTC\]$/, ''); 
         
-        // 2. Cria o objeto Date
+        // 3. Cria o objeto Date (o JS tentará interpretar a data limpa no fuso local)
         const date = new Date(cleanedString);
 
         if (isNaN(date.getTime())) {
-             // Tenta uma nova abordagem de parsing se a primeira falhar
-             // O fuso horário pode estar sendo omitido no banco, gerando anomalia
-             const parts = cleanedString.match(/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/);
-             if (parts) {
-                 // Cria a data localmente no fuso do banco, ignorando o Z (UTC)
-                 date = new Date(parts[1], parts[2] - 1, parts[3], parts[4], parts[5], parts[6]);
-             } else {
-                 throw new Error('Formato de data irrecuperável.');
-             }
+             return 'Data Inválida (Parsing Falhou)';
         }
         
-        // 3. Formata manualmente para forçar o GMT-03:00 (se este for o fuso do banco)
-        // O método mais robusto é usar Intl.DateTimeFormat com o timezone alvo.
+        // 4. Formatação sem forçar Fuso Horário
         const options = { 
             day: '2-digit', 
             month: '2-digit', 
@@ -36,12 +29,12 @@ const formatDate = (isoString) => {
             minute: '2-digit', 
             second: '2-digit', 
             hour12: false,
-            // Força a interpretação como horário do Brasil (GMT-3)
-            timeZone: 'America/Sao_Paulo' 
+            // REMOVIDO: timeZone: 'America/Sao_Paulo'
         };
         
-        // Usamos toLocaleString, mas com a timezone especificada
-        return date.toLocaleString('pt-BR', options);
+        // Usa o locale do navegador (que deve ser pt-BR se o usuário estiver no Brasil)
+        // e usa o fuso horário local.
+        return date.toLocaleString(undefined, options); // undefined usa o locale padrão do ambiente
         
     } catch (e) {
         console.error("ERRO [TZ]: Falha ao formatar ISO string:", e);
@@ -141,8 +134,7 @@ const SessionManager = ({ onDeleteSession }) => {
         e.preventDefault(); // Evita o refresh da página
 
         // Chama o POST com o comentário
-        startNewSession(newComment); 
-
+        await startNewSession(newComment); 
         // Fecha o modal e limpa o campo
         setNewComment('');
         setShowCommentModal(false); 
@@ -205,8 +197,15 @@ const handleEndSession = async (id) => {
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(`Falha ao encerrar sessão: ${response.status} - ${errorData.message || 'Erro desconhecido'}`);
+            const errorText = await response.text(); 
+        
+        // Use uma expressão regular para tentar extrair a mensagem de erro específica,
+        // mas o texto puro já é suficiente para mostrar ao usuário.
+        const errorMessage = errorText.includes("FIM_SESSAO") 
+            ? "Falha na validação de tempo: INÍCIO > FIM (Erro de Fuso Horário)."
+            : errorText; // Use o texto puro da exceção
+
+        throw new Error(`Falha ao encerrar sessão: ${response.status} - ${errorMessage}`);
         }
 
         // 2. Recebe a SessionWork ATUALIZADA

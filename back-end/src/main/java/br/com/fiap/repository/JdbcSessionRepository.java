@@ -6,11 +6,15 @@ import org.glassfish.grizzly.http.server.Session;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 
 public class JdbcSessionRepository implements SessionRepository {
 
     private DBConnection db;
+
+    private static final Calendar BR_CALENDAR = Calendar.getInstance(TimeZone.getTimeZone("America/Sao_Paulo"));
 
     public JdbcSessionRepository() {this.db = new DBConnection();}
 
@@ -31,8 +35,8 @@ public class JdbcSessionRepository implements SessionRepository {
                 SessionWork s = new SessionWork(
                         rs.getLong("ID_SESSION"),
                         rs.getLong("ID_USER"),
-                        rs.getTimestamp("INICIO_SESSAO"),
-                        rs.getTimestamp("FIM_SESSAO"),
+                        rs.getTimestamp("INICIO_SESSAO", BR_CALENDAR),
+                        rs.getTimestamp("FIM_SESSAO", BR_CALENDAR),
                         rs.getInt("DURACAO_MINUTOS"),
                         rs.getInt("PAUSA_MINUTOS"),
                         rs.getInt("NIVEL_CANSACO"),
@@ -64,8 +68,8 @@ public class JdbcSessionRepository implements SessionRepository {
                     SessionWork s = new SessionWork(
                             rs.getLong("ID_SESSION"),
                             rs.getLong("ID_USER"),
-                            rs.getTimestamp("INICIO_SESSAO"),
-                            rs.getTimestamp("FIM_SESSAO"),
+                            rs.getTimestamp("INICIO_SESSAO",BR_CALENDAR),
+                            rs.getTimestamp("FIM_SESSAO", BR_CALENDAR),
                             // Colunas NUMBER(5) e NUMBER(1) são mapeadas como Integer.
                             rs.getInt("DURACAO_MINUTOS"),
                             rs.getInt("PAUSA_MINUTOS"),
@@ -102,8 +106,8 @@ public class JdbcSessionRepository implements SessionRepository {
                     session = new SessionWork(
                             rs.getLong("ID_SESSION"),
                             rs.getLong("ID_USER"),
-                            rs.getTimestamp("INICIO_SESSAO"),
-                            rs.getTimestamp("FIM_SESSAO"),
+                            rs.getTimestamp("INICIO_SESSAO", BR_CALENDAR),
+                            rs.getTimestamp("FIM_SESSAO", BR_CALENDAR),
                             // O banco pode ter 0 ou NULL, mapeamos para Integer
                             rs.getInt("DURACAO_MINUTOS"),
                             rs.getInt("PAUSA_MINUTOS"),
@@ -127,7 +131,7 @@ public class JdbcSessionRepository implements SessionRepository {
         // 1. DML: Usaremos CURRENT_TIMESTAMP e NULL para colunas não preenchidas.
         String sqlInsert =
                 "INSERT INTO TB_SESSIONS (ID_USER, INICIO_SESSAO, FIM_SESSAO, DURACAO_MINUTOS, PAUSA_MINUTOS, NIVEL_CANSACO, COMENTARIO) " +
-                        "VALUES (?, CURRENT_TIMESTAMP, NULL, NULL, NULL, NULL, NULL)";
+                        "VALUES (?, ?, NULL, NULL, NULL, NULL, NULL)";
 
         // 2. DML de Recuperação (SELECT): Recupera o ID_SESSION e o INICIO_SESSAO exato.
         // Usamos CURRENT_TIMESTAMP no WHERE para tentar garantir que pegamos o mais recente,
@@ -143,9 +147,12 @@ public class JdbcSessionRepository implements SessionRepository {
             // Desligamos o autocommit para garantir que as duas operações sejam atômicas.
             conn.setAutoCommit(false);
 
+            Timestamp inicio = new Timestamp(System.currentTimeMillis());
+
             // 3. Execução do INSERT
             try (PreparedStatement stmtInsert = conn.prepareStatement(sqlInsert)) {
                 stmtInsert.setLong(1, session.idUser());
+                stmtInsert.setTimestamp(2, inicio, BR_CALENDAR);
                 int affectedRows = stmtInsert.executeUpdate();
 
                 if (affectedRows == 0) {
@@ -162,12 +169,12 @@ public class JdbcSessionRepository implements SessionRepository {
                     if(rs.next()) {
                         // Mapeamento sem depender do problemático getGeneratedKeys().
                         long idSession = rs.getLong("ID_SESSION");
-                        java.sql.Timestamp inicioSessao = rs.getTimestamp("INICIO_SESSAO");
+                        java.sql.Timestamp inicioSessao = rs.getTimestamp("INICIO_SESSAO", BR_CALENDAR);
 
                         persistedSession = new SessionWork(
                                 idSession,
                                 session.idUser(),
-                                inicioSessao,
+                                inicio,
                                 null, null, null, null, null
                         );
                     }
@@ -200,7 +207,11 @@ public class JdbcSessionRepository implements SessionRepository {
         {
             int index = 1;
 
-            stmt.setTimestamp(index++, session.fimSessao());
+            if (session.fimSessao() != null) {
+                stmt.setTimestamp(index++, session.fimSessao(), BR_CALENDAR); // <--- CORREÇÃO
+            } else {
+                stmt.setNull(index++, Types.TIMESTAMP);
+            }
 
             // 2. DURACAO_MINUTOS (NUMBER)
             if (session.duracaoMinutos() != null) {
@@ -250,7 +261,28 @@ public class JdbcSessionRepository implements SessionRepository {
 
     @Override
     public void delete(Long id) {
-        //Coloca a implementação de DELETE pelo id da sessão.
+
+        // DML Statement: Deleta a sessão pelo ID.
+        String sql = "DELETE FROM TB_SESSIONS WHERE ID_SESSION = ?";
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            // Bind do ID_SESSION
+            stmt.setLong(1, id);
+
+            int affectedRows = stmt.executeUpdate();
+
+            if (affectedRows == 0) {
+                // Log de warning: O registro não existia, mas o método é void, então apenas ignora.
+                System.out.println("Warning: Sessão ID " + id + " não encontrada para exclusão.");
+            } else {
+                System.out.println("Sessão ID " + id + " deletada com sucesso.");
+            }
+        } catch (SQLException e) {
+            // Lançar RuntimeException para ser capturada e tratada pelo Resource/JAX-RS.
+            System.err.println("SQL Error (DELETE Session): " + e.getMessage());
+            throw new RuntimeException("Erro ao deletar sessão ID: " + id, e);
+        }
     }
 
 

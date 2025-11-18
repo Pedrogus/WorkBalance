@@ -6,13 +6,13 @@
   <component name="ChangeListManager">
     <list default="true" id="0cf7dcae-a214-4b11-b41f-a3a8fa07a628" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/br/com/fiap/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/fiap/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/br/com/fiap/dao/DBConnection.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/fiap/dao/DBConnection.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/br/com/fiap/filter/CorsFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/fiap/filter/CorsFilter.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/br/com/fiap/repository/JdbcSessionRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/fiap/repository/JdbcSessionRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/com/fiap/repository/JdbcUserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/fiap/repository/JdbcUserRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/br/com/fiap/repository/SessionRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/fiap/repository/SessionRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/br/com/fiap/resources/SessionResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/fiap/resources/SessionResource.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/br/com/fiap/service/SessionService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/fiap/service/SessionService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../front-end/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/../front-end/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../front-end/src/components/Login/Login.js" beforeDir="false" afterPath="$PROJECT_DIR$/../front-end/src/components/Login/Login.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../front-end/src/components/SessionManager/SessionManager.js" beforeDir="false" afterPath="$PROJECT_DIR$/../front-end/src/components/SessionManager/SessionManager.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

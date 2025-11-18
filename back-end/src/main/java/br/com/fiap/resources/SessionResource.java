@@ -89,7 +89,22 @@ public class SessionResource {
     @DELETE
     @Path("{id}")
     public Response deleteSession(@PathParam("id") Long id) {
-        return Response.status(204).build();
+        // Jargão: O Idempotency check é implícito. Mesmo que o item não exista,
+        // o resultado final (item não presente) é o mesmo.
+
+        try {
+            sessionRepository.delete(id);
+
+            // Retorna o Status 204 No Content, que é o padrão para DELETE sem retorno de corpo.
+            return Response.status(Response.Status.NO_CONTENT).build();
+
+        } catch (RuntimeException e) {
+            // Em caso de erro de banco (ex: FK violation, se existisse), retorna 500.
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("{\"message\": \"Erro técnico ao deletar sessão: " + e.getMessage() + "\"}")
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        }
     }
 
 }

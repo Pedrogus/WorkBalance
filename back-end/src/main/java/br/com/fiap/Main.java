@@ -10,7 +10,7 @@ import java.net.URI;
 public class Main {
     public static void main(String[] args) throws Exception {
         ResourceConfig rc = new ResourceConfig()
-                .packages("br.com.fiap.resources")
+                .packages("br.com.fiap.resources", "br.com.fiap.filter")
                 .register(JsonBindingFeature.class);
 
         URI uri = URI.create("http://localhost:8080");
