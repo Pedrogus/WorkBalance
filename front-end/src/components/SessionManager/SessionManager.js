@@ -1,375 +1,292 @@
-import React, { useState, useEffect } from 'react';
-import './SessionManager.css';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import './SessionManager.css'; // Importa o CSS
 
-// =========================================================
-// FUNÇÕES UTILITÁRIAS (Formatando datas da API Java)
-// =========================================================
-const formatDate = (isoString) => {
-    // 1. Caso a data seja nula (sessão em andamento)
-    if (!isoString) return 'N/A';
+// URL base da API
+const API_BASE_URL = "http://localhost:8080/api";
 
+// ---------------------------------------------------------
+// FUNÇÕES AUXILIARES DE DATA (CORREÇÃO HIPER-ROBUSTA DE PARSING)
+// ---------------------------------------------------------
+
+/**
+ * Cria um objeto Date robustamente, tratando a string de data do backend.
+ * Resolve problemas com strings não-ISO (ex: "2023-11-15 10:30:00.0 [UTC]").
+ * * @param {string} dateString - A string de data a ser parseada, potencialmente não-ISO.
+ * @returns {Date|null} Um objeto Date válido ou null.
+ */
+const safeDate = (dateString) => {
+    if (!dateString) return null;
+    
+    // 1. Limpeza e Conversão para ISO 8601.
+    // Substitui o espaço (delimitador comum em Timestamps JDBC) por 'T'
+    // e remove o lixo como '[UTC]' ou outros sufixos de fuso horário não-padrão.
+    let cleanedDateString = dateString
+        .replace(/(\d{4}-\d{2}-\d{2})\s(\d{2}:\d{2}:\d{2})/, '$1T$2')
+        .replace(/\[UTC\]/g, '')
+        .trim();
+
+    // 2. Tenta isolar a string ISO estrita para garantir compatibilidade.
+    // Captura YYYY-MM-DDTHH:mm:ss[.sss] seguido opcionalmente por Z ou offset.
+    const isoMatch = cleanedDateString.match(/(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?)/);
+    
+    // Se o regex encontrar uma parte ISO válida, usa-a. Caso contrário, usa a string limpa.
+    const finalDateString = isoMatch ? isoMatch[1] : cleanedDateString;
+    
     try {
-        // 2. CRÍTICO: Limpa o formato não-padrão [UTC] que o backend envia
-        // Isso é fundamental para que new Date() funcione.
-        const cleanedString = isoString.replace(/\[UTC\]$/, ''); 
-        
-        // 3. Cria o objeto Date (o JS tentará interpretar a data limpa no fuso local)
-        const date = new Date(cleanedString);
-
-        if (isNaN(date.getTime())) {
-             return 'Data Inválida (Parsing Falhou)';
-        }
-        
-        // 4. Formatação sem forçar Fuso Horário
-        const options = { 
-            day: '2-digit', 
-            month: '2-digit', 
-            year: 'numeric', 
-            hour: '2-digit', 
-            minute: '2-digit', 
-            second: '2-digit', 
-            hour12: false,
-            // REMOVIDO: timeZone: 'America/Sao_Paulo'
-        };
-        
-        // Usa o locale do navegador (que deve ser pt-BR se o usuário estiver no Brasil)
-        // e usa o fuso horário local.
-        return date.toLocaleString(undefined, options); // undefined usa o locale padrão do ambiente
-        
+        const date = new Date(finalDateString);
+        // 3. Verifica se a data é válida
+        return isNaN(date.getTime()) ? null : date;
     } catch (e) {
-        console.error("ERRO [TZ]: Falha ao formatar ISO string:", e);
-        return 'Data Inválida';
+        console.error("Erro no safeDate ao parsear:", finalDateString, e);
+        return null;
     }
 };
-// =========================================================
+
+/**
+ * Formata a string de data e hora para exibição na UI.
+ * @param {string} dateString - A string de data do backend.
+ * @returns {string} Data e hora formatadas ou "Data Inválida".
+ */
+const formatDateString = (dateString) => {
+    const date = safeDate(dateString);
+    if (!date) return "Data Inválida";
+    // Usa 'pt-BR' para garantir a formatação completa da data e hora
+    return date.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'medium' });
+};
+
+
+// ---------------------------------------------------------
 // COMPONENTE PRINCIPAL
-// =========================================================
-const SessionManager = ({ onDeleteSession }) => {
-    // Estados do Formulário (mantidos, mas não usados para o POST automático)
-    const [showForm, setShowForm] = useState(false);
-    const [formData, setFormData] = useState({
-        startTime: '',
-        endTime: '',
-        breaks: '',
-        notes: '',
-        fatigueLevel: 5
-    });
+// ---------------------------------------------------------
 
-    const [showCommentModal, setShowCommentModal] = useState(false); // NOVO
-    const [newComment, setNewComment] = useState('');
-
-    // Handler para o campo de texto
-    const handleCommentChange = (event) => {
-        setNewComment(event.target.value);
-    };
-
-    // Estados de Sessão e Usuário
+const SessionManager = ({ userId, onUpdateSessions }) => {
     const [sessions, setSessions] = useState([]);
-    const userId = 1; // ID do Usuário Fixo para o escopo
+    const [isSessionActive, setIsSessionActive] = useState(false);
+    const [comment, setComment] = useState('');
+    const [message, setMessage] = useState(null);
+    const [activeSessionId, setActiveSessionId] = useState(null);
 
     // ---------------------------------------------------------
     // AÇÃO 1: FETCH (GET) - Carregar Histórico
     // ---------------------------------------------------------
-    const fetchSessions = async () => {
-        const url = `http://localhost:8080/api/users/${userId}/sessions`;
+    const fetchSessions = useCallback(async () => {
+        if (!userId) {
+            setMessage("Erro: ID de usuário não fornecido.");
+            setSessions([]);
+            return;
+        }
+
+        const url = `${API_BASE_URL}/users/${userId}/sessions`;
         try {
             const response = await fetch(url);
 
             if (!response.ok) {
-                throw new Error(`Erro ${response.status} ao buscar sessões.`);
+                const errorData = await response.json().catch(() => ({ message: 'Resposta não OK da API.' }));
+                throw new Error(`Erro ${response.status} ao buscar sessões: ${errorData.message || 'Falha na requisição.'}`);
             }
 
-            // O JSON retornado pela API é diretamente setado, usando nomes de campos Java
             const sessionsData = await response.json();
-            setSessions(sessionsData); 
+            setSessions(sessionsData);
+            setMessage(null);
+
+            const active = sessionsData.find(s => !s.fimSessao);
+            if (active) {
+                setIsSessionActive(true);
+                setActiveSessionId(active.id);
+                setComment(active.comentario || '');
+            } else {
+                setIsSessionActive(false);
+                setActiveSessionId(null);
+                setComment('');
+            }
 
         } catch (error) {
             console.error("Erro ao carregar sessões:", error);
-            // Poderia adicionar um alerta de erro aqui
+            setMessage(`Falha ao carregar sessões: ${error.message}`);
+            setSessions([]);
         }
-    };
+    }, [userId]);
     
-    // Executa a busca na montagem do componente
     useEffect(() => {
         fetchSessions();
-    }, []); 
-
+    }, [fetchSessions]); 
 
     // ---------------------------------------------------------
-    // AÇÃO 2: START (POST) - Iniciar Nova Sessão
+    // AÇÃO 4: DELETE - Eliminar Sessão
     // ---------------------------------------------------------
-    const startNewSession = async (comment) => {
-        const url = `http://localhost:8080/api/users/${userId}/sessions`;
+    const deleteSession = async (sessionId) => {
+        // Usar um modal customizado em apps de produção.
+        if (!window.confirm(`Tem certeza que deseja eliminar a sessão ${sessionId}? Esta ação é irreversível.`)) {
+            return; 
+        }
         
+        const url = `${API_BASE_URL}/sessions/${sessionId}`;
         try {
             const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                  comentario: comment,
-                }),
+                method: 'DELETE',
             });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(`Falha ao iniciar sessão: ${response.status} - ${errorData.message || 'Erro desconhecido'}`);
+            if (response.status === 204 || response.ok) { // 204 No Content é o esperado
+                setMessage(`Sessão ${sessionId} eliminada com sucesso.`);
+            } else {
+                 const errorData = await response.json().catch(() => ({ message: 'Resposta não OK da API.' }));
+                 throw new Error(`Erro ${response.status} ao eliminar sessão: ${errorData.message || 'Falha na requisição.'}`);
             }
-
-            const newSession = await response.json();
             
-            // Adiciona a nova sessão (que estará "Em Andamento") à lista
-            setSessions(prevSessions => [...prevSessions, newSession]);
-
-            console.log('Sessão iniciada com sucesso:', newSession);
+            // Se a sessão eliminada era a ativa, atualiza o estado
+            if (sessionId === activeSessionId) {
+                setIsSessionActive(false);
+                setActiveSessionId(null);
+                setComment('');
+                onUpdateSessions(); 
+            }
             
+            fetchSessions(); // Recarrega a lista
+
         } catch (error) {
-            console.error("Erro técnico na API (POST /sessions):", error);
-            alert(`Erro ao iniciar sessão: ${error.message}`);
+            console.error("Erro ao eliminar sessão:", error);
+            setMessage(`Falha ao eliminar sessão: ${error.message}`);
         }
     };
 
-    const handleSubmitNewSession = async (e) => {
-        e.preventDefault(); // Evita o refresh da página
-
-        // Chama o POST com o comentário
-        await startNewSession(newComment); 
-        // Fecha o modal e limpa o campo
-        setNewComment('');
-        setShowCommentModal(false); 
+    // ---------------------------------------------------------
+    // OUTRAS AÇÕES (Start, End)
+    // ---------------------------------------------------------
+    const startSession = async () => {
+        if (!userId) { setMessage("Erro de autenticação."); return; }
+        const url = `${API_BASE_URL}/users/${userId}/sessions`;
+        try {
+            const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ comentario: comment }) });
+            if (!response.ok) { const errorData = await response.json().catch(() => ({ message: 'Resposta não OK da API.' })); throw new Error(`Erro ${response.status} ao iniciar sessão: ${errorData.message || 'Falha na requisição.'}`); }
+            setMessage("Sessão iniciada com sucesso!");
+            onUpdateSessions(); fetchSessions();
+        } catch (error) { console.error("Erro ao iniciar sessão:", error); setMessage(`Falha ao iniciar sessão: ${error.message}`); }
     };
 
-    // ---------------------------------------------------------
-    // AÇÃO 3: DELETE - Deletar Sessão
-    // ---------------------------------------------------------
-
-    const handleDeleteSession = async (id) => {
-    const url = `http://localhost:8080/api/sessions/${id}`;
-
-    // Confirmação para evitar exclusão acidental
-    if (!window.confirm(`Tem certeza que deseja deletar a sessão ID ${id}?`)) {
-        return;
-    }
+    const endSession = async () => {
+        if (!activeSessionId) { setMessage("Nenhuma sessão ativa para finalizar."); return; }
+        const url = `${API_BASE_URL}/sessions/${activeSessionId}`;
+        try {
+            const response = await fetch(url, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ comentario: comment }) });
+            if (!response.ok) { const errorData = await response.json().catch(() => ({ message: 'Resposta não OK da API.' })); throw new Error(`Erro ${response.status} ao finalizar sessão: ${errorData.message || 'Falha na requisição.'}`); }
+            setMessage("Sessão finalizada com sucesso!");
+            onUpdateSessions(); fetchSessions();
+        } catch (error) { console.error("Erro ao finalizar sessão:", error); setMessage(`Falha ao finalizar sessão: ${error.message}`); }
+    };
     
-    try {
-        // 1. Requisição DELETE
-        const response = await fetch(url, {
-            method: 'DELETE',
-            // O DELETE não requer Content-Type se não tiver body
-        });
-
-        // O status 204 NO CONTENT é o esperado para o DELETE bem-sucedido
-        if (response.status !== 204) {
-             // Tenta ler o erro se o status for 4xx ou 5xx
-            const errorText = await response.text();
-            throw new Error(`Falha ao deletar sessão: ${response.status} - ${errorText || 'Erro desconhecido'}`);
-        }
-
-        // 2. Atualiza o State (Immutability)
-        // Remove a sessão do array de sessões sem recarregar a página
-        setSessions(prevSessions => prevSessions.filter(s => s.id !== id));
-
-        console.log(`Sessão ID ${id} deletada com sucesso.`);
-
-    } catch (error) {
-        console.error("Erro técnico na API (DELETE /sessions):", error);
-        alert(`Erro ao deletar: ${error.message}`);
-    }
-};
-
     // ---------------------------------------------------------
-    // AÇÃO 4: END (PUT) - Encerrar Sessão
+    // UI HELPER
     // ---------------------------------------------------------
 
-// Função para encerrar uma sessão
-const handleEndSession = async (id) => {
-    const url = `http://localhost:8080/api/sessions/${id}`;
-    
-    try {
-        // 1. Requisição PUT para o novo endpoint
-        const response = await fetch(url, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            // Não há body, pois o backend usa o ID e a hora atual
+    const formatDuration = (inicio, fim) => {
+        const start = safeDate(inicio);
+        const end = safeDate(fim);
+
+        if (!end) return "Sessão em andamento";
+        if (!start) return "Erro de Duração"; 
+
+        const diffMs = end.getTime() - start.getTime();
+        
+        if (diffMs < 0) return "Duração Inválida";
+
+        // Cálculo da duração 
+        const totalSeconds = Math.floor(diffMs / 1000);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+
+        return `${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}m ${seconds.toString().padStart(2, '0')}s`;
+    };
+
+    const sortedSessions = useMemo(() => {
+        // Ordena pela data de início, do mais recente para o mais antigo
+        return [...sessions].sort((a, b) => {
+            const dateA = safeDate(b.inicioSessao);
+            const dateB = safeDate(a.inicioSessao);
+            
+            if (!dateA && !dateB) return 0;
+            if (!dateA) return 1; 
+            if (!dateB) return -1;
+            
+            return dateA.getTime() - dateB.getTime();
         });
+    }, [sessions]);
 
-        if (!response.ok) {
-            const errorText = await response.text(); 
-        
-        // Use uma expressão regular para tentar extrair a mensagem de erro específica,
-        // mas o texto puro já é suficiente para mostrar ao usuário.
-        const errorMessage = errorText.includes("FIM_SESSAO") 
-            ? "Falha na validação de tempo: INÍCIO > FIM (Erro de Fuso Horário)."
-            : errorText; // Use o texto puro da exceção
-
-        throw new Error(`Falha ao encerrar sessão: ${response.status} - ${errorMessage}`);
-        }
-
-        // 2. Recebe a SessionWork ATUALIZADA
-        const updatedSession = await response.json();
-        
-        // 3. Atualiza o State (Immutability)
-        // Substitui a sessão antiga pela versão atualizada (agora com fimSessao e duracaoMinutos)
-        setSessions(prevSessions => 
-            prevSessions.map(s => s.id === id ? updatedSession : s)
-        );
-
-        console.log(`Sessão ID ${id} encerrada com sucesso.`, updatedSession);
-
-    } catch (error) {
-        console.error("Erro técnico na API (PUT /end):", error);
-        alert(`Erro ao encerrar sessão: ${error.message}`);
-    }
-};
 
     // ---------------------------------------------------------
     // RENDERIZAÇÃO
     // ---------------------------------------------------------
+
     return (
-        <div className="session-manager">
-            <div className="section-header">
-                <h1>Gestão de Sessões</h1>
-                <p>Registre e acompanhe suas sessões de trabalho</p>
-            </div>
+        <div className="session-manager-page">
+            <div className="session-card">
+                <div className="session-header">
+                    <h1 className="session-title">Gestão de Sessões</h1>
+                    <p className="session-subtitle">
+                        {isSessionActive ? "Você tem uma sessão ativa!" : "Registre e acompanhe suas sessões de trabalho."}
+                    </p>
+                </div>
 
-            <div className="session-actions">
-                <button 
-                    className="add-session-btn"
-                    onClick={() => setShowCommentModal(true)} // Chama o POST
-                >
-                    <span>+</span>
-                    Nova Sessão
-                </button>
-            </div>
-
-          {/* NOVO: Formulário de Comentário (Modal) */}
-{showCommentModal && (
-    <div className="modal-overlay">
-        <div className="modal-content">
-            <h3>📝 Iniciar Nova Sessão</h3>
-            <form onSubmit={handleSubmitNewSession}>
-                <div className="form-group">
-                    <label htmlFor="newComment">Comentário Inicial</label>
+                {/* Área de Ação (Start/Stop) */}
+                <div className="session-action-area">
                     <textarea
-                        id="newComment"
-                        name="newComment"
-                        value={newComment}
-                        onChange={handleCommentChange}
-                        placeholder="Descreva o foco do seu trabalho (Ex: Desenvolvimento da feature X)."
-                        rows="4"
+                        className="session-comment-input"
+                        placeholder="Adicione um comentário para esta sessão (Ex: Projeto X, Estudo React)..."
+                        value={comment}
+                        onChange={(e) => setComment(e.target.value)}
+                        disabled={userId === null} 
                     />
+
+                    {isSessionActive ? (
+                        <button 
+                            className="session-button stop-button" 
+                            onClick={endSession}
+                            disabled={userId === null}
+                        >
+                            <span className="button-icon">🛑</span> Finalizar Sessão
+                        </button>
+                    ) : (
+                        <button 
+                            className="session-button start-button" 
+                            onClick={startSession}
+                            disabled={userId === null}
+                        >
+                            <span className="button-icon">▶️</span> Nova Sessão
+                        </button>
+                    )}
                 </div>
 
-                <div className="form-actions">
-                    <button type="button" onClick={() => setShowCommentModal(false)}>
-                        Cancelar
-                    </button>
-                    <button type="submit" className="primary">
-                        Iniciar Sessão
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-)}
+                {/* Mensagens de feedback */}
+                {message && <p className="session-message">{message}</p>}
 
+                {/* Histórico de Sessões */}
+                <h2 className="session-history-title">Histórico de Sessões</h2>
 
-            {/* Lista de Sessões */}
-            <div className="sessions-list">
-                <h3>Histórico de Sessões</h3>
-                
-                {sessions.length === 0 ? (
-                    <div className="empty-sessions">
-                        <p>Carregando ou Nenhuma sessão registrada ainda</p>
+                {sortedSessions.length === 0 ? (
+                    <div className="empty-state">
+                        <span className="empty-icon">⏳</span>
+                        <h2>Nenhuma sessão registrada ainda</h2>
+                        <p>Comece sua primeira sessão de trabalho acima.</p>
                     </div>
                 ) : (
-                    <div className="sessions-grid">
-                        {sessions.map(session => (
-                            <div key={session.id} 
-      className={`session-card ${session.fimSessao === null ? 'status-open' : 'status-closed'}`}>
-    
-    <div className="session-header">
-        <span className="session-status">
-            {/* LÓGICA FINAL REFORÇADA: Checa se o valor é Falsy (null, undefined, "") OU a string "null" */}
-            {!session.fimSessao || session.fimSessao === "null" ? (
-                // Se o campo for nulo (incluindo string vazia), está Em Andamento
-                <strong>🟢 EM ANDAMENTO</strong> 
-            ) : (
-                <strong>⚫ Encerrada</strong> // Sessão Fechada
-            )}
-        </span>
-
-        {/* BOTÃO DE ENCERRAR (Visível apenas se EM ANDAMENTO) */}
-        {(!session.fimSessao || session.fimSessao === "null") && (
-            <button 
-                onClick={() => handleEndSession(session.id)} // Chama a função PUT
-                className="end-session-btn"
-            >
-                Encerrar
-            </button>
-        )}
-                                    
-                                    <button 
-                                        onClick={() => handleDeleteSession(session.id)}
-                                        className="delete-btn"
-                                    >
-                                        🗑️
-                                    </button>
+                    <div className="session-list">
+                        {sortedSessions.map((session) => (
+                            <div key={session.id} className={`session-item ${session.fimSessao ? 'completed' : 'active'}`}>
+                                <div className="session-info">
+                                    <p className="session-duration">{formatDuration(session.inicioSessao, session.fimSessao)}</p>
+                                    <p className="session-time">Início: {formatDateString(session.inicioSessao)}</p>
+                                    {session.fimSessao && <p className="session-time">Fim: {formatDateString(session.fimSessao)}</p>}
                                 </div>
+                                <p className="session-comment">{session.comentario || 'Sem comentário'}</p>
                                 
-                                <div className="session-details">
-                                    {/* Exibição da Data de Início */}
-                                    <div className="detail">
-                                        <span>Início da Sessão:</span>
-                                        <strong>{formatDate(session.inicioSessao)}</strong>
-                                    </div>
-                                    
-                                    {/* Exibição da Data de Fim/Status */}
-                                    <div className="detail">
-                                        <span>Fim da Sessão:</span>
-                                       <strong>
-                {session.fimSessao === null || session.fimSessao === "null" ? (
-                    'N/A' // Opcional, ou poderia ser 'Em Andamento'
-                ) : (
-                    formatDate(session.fimSessao)
-                )}
-            </strong>
-                                    </div>
-
-                                    {/* Duração (Só exibe se a sessão estiver fechada) */}
-                                    {session.fimSessao && (
-                                        <div className="detail">
-                                            <span>Duração:</span>
-                                            <strong>{session.duracaoMinutos} min</strong>
-                                        </div>
-                                    )}
-
-                                    {/* Pausas */}
-                                    {session.pausaMinutos > 0 && (
-                                        <div className="detail">
-                                            <span>Pausas:</span>
-                                            <strong>{session.pausaMinutos}m</strong>
-                                        </div>
-                                    )}
-                                    
-                                    {/* Cansaço */}
-                                    <div className="detail">
-                                        <span>Cansaço:</span>
-                                        <strong className={`fatigue-${session.nivelCansaco}`}>
-                                            {session.nivelCansaco || 0}/10
-                                        </strong>
-                                    </div>
-                                </div>
-                                
-                                {/* Comentário (comentario || default) */}
-                                <div className="session-comment">
-                                    <p>
-                                        **Comentário:** {session.comentario || 'Trabalhando na FIAP'}
-                                    </p>
-                                </div>
+                                {/* Botão de Eliminar */}
+                                <button 
+                                    className="session-button delete-button small-button" 
+                                    onClick={() => deleteSession(session.id)}
+                                    disabled={userId === null || isSessionActive} // Não permite apagar se for a sessão ativa
+                                >
+                                    <span className="button-icon">🗑️</span> Eliminar
+                                </button>
                             </div>
                         ))}
                     </div>

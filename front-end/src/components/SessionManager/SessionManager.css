@@ -1,252 +1,215 @@
-.session-manager {
-  background: var(--surface);
-  border-radius: 1.5rem;
-  padding: 2rem;
-  box-shadow: var(--shadow);
+/* --- Variáveis CSS Globais (As mesmas do Login/Dashboard) --- */
+:root {
+    --primary: #4f46e5; /* indigo-600 */
+    --primary-dark: #4338ca; /* indigo-700 */
+    --surface: #ffffff;
+    --background: #f3f4f6; /* gray-100 */
+    --text-primary: #1f2937; /* gray-800 */
+    --text-secondary: #6b7280; /* gray-500 */
+    --border: #d1d5db; /* gray-300 */
+    --success: #10b981; /* emerald-500 */
+    --warning: #f59e0b; /* amber-500 */
+    --error: #ef4444; /* red-500 */
+    --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
-.section-header h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
+.session-manager-page {
+    padding: 2rem;
+    max-width: 1000px;
+    margin: 0 auto;
 }
 
-.section-header p {
-  color: var(--text-secondary);
-  margin-bottom: 2rem;
-}
-
-.session-actions {
-  margin-bottom: 2rem;
-}
-
-.add-session-btn {
-  background: var(--primary);
-  color: white;
-  border: none;
-  padding: 1rem 1.5rem;
-  border-radius: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: background 0.2s;
-}
-
-.add-session-btn:hover {
-  background: var(--primary-dark);
-}
-
-.add-session-btn span {
-  font-size: 1.25rem;
-}
-
-.session-form-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.session-form-modal {
-  background: var(--surface);
-  border-radius: 1.5rem;
-  padding: 2rem;
-  width: 90%;
-  max-width: 600px;
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-.session-form-modal h3 {
-  margin-bottom: 1.5rem;
-  color: var(--text-primary);
-}
-
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.form-group label {
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.form-group input,
-.form-group textarea {
-  padding: 0.75rem;
-  border: 1px solid var(--border);
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  transition: border-color 0.2s;
-}
-
-.form-group input:focus,
-.form-group textarea:focus {
-  outline: none;
-  border-color: var(--primary);
-}
-
-.fatigue-slider {
-  width: 100%;
-}
-
-.slider-labels {
-  display: flex;
-  justify-content: space-between;
-  font-size: 1.25rem;
-}
-
-.form-actions {
-  display: flex;
-  gap: 1rem;
-  justify-content: flex-end;
-  margin-top: 1.5rem;
-}
-
-.form-actions button {
-  padding: 0.75rem 1.5rem;
-  border: 1px solid var(--border);
-  border-radius: 0.5rem;
-  background: transparent;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.form-actions button.primary {
-  background: var(--primary);
-  color: white;
-  border-color: var(--primary);
-}
-
-.form-actions button.primary:hover {
-  background: var(--primary-dark);
-}
-
-.sessions-list h3 {
-  margin-bottom: 1rem;
-  color: var(--text-primary);
-}
-
-.empty-sessions {
-  text-align: center;
-  padding: 3rem;
-  color: var(--text-secondary);
-  background: var(--background);
-  border-radius: 1rem;
-}
-
-.sessions-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1rem;
-}
-
+/* --- Cartão Principal (.session-card) --- */
 .session-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 1rem;
-  padding: 1.5rem;
-  transition: transform 0.2s, box-shadow 0.2s;
+    background: var(--surface);
+    border-radius: 1.5rem;
+    padding: 2rem;
+    box-shadow: var(--shadow);
 }
 
-.session-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow);
+.session-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
 }
 
-.session-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--border);
+.session-header p {
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
 }
 
-.session-date {
-  font-weight: 600;
-  color: var(--text-primary);
+/* --- Área de Ação (Botões e Input) --- */
+.session-action-area {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    background-color: var(--background);
 }
 
-.delete-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 1.25rem;
-  opacity: 0.6;
-  transition: opacity 0.2s;
+.session-comment-input {
+    width: 100%;
+    min-height: 80px;
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    resize: vertical;
+    font-size: 1rem;
+    box-sizing: border-box;
 }
 
-.delete-btn:hover {
-  opacity: 1;
+.session-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s;
 }
 
-.session-details {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+.session-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
 }
 
-.detail {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.start-button {
+    background: var(--primary);
+    box-shadow: 0 4px 6px rgba(79, 70, 229, 0.3);
 }
 
-.detail span {
-  color: var(--text-secondary);
+.start-button:hover:not(:disabled) {
+    background: var(--primary-dark);
 }
 
-.detail strong {
-  color: var(--text-primary);
+.stop-button {
+    background: var(--error);
+    box-shadow: 0 4px 6px rgba(239, 68, 68, 0.3);
 }
 
-.fatigue-1 { color: var(--success); }
-.fatigue-2 { color: var(--success); }
-.fatigue-3 { color: var(--success); }
-.fatigue-4 { color: var(--warning); }
-.fatigue-5 { color: var(--warning); }
-.fatigue-6 { color: var(--warning); }
-.fatigue-7 { color: var(--error); }
-.fatigue-8 { color: var(--error); }
-.fatigue-9 { color: var(--error); }
-.fatigue-10 { color: var(--error); }
-
-.session-notes {
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--border);
+.stop-button:hover:not(:disabled) {
+    background: #dc2626; /* red-700 */
 }
 
-.session-notes p {
-  color: var(--text-secondary);
-  font-style: italic;
+/* --- Mensagem de Feedback --- */
+.session-message {
+    padding: 0.75rem;
+    background: #eef2ff; /* indigo-50 */
+    color: var(--primary-dark);
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+    border-left: 4px solid var(--primary);
+}
+
+/* --- Histórico e Lista --- */
+.session-history-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.session-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.session-item {
+    background: var(--background);
+    padding: 1rem;
+    border-radius: 0.75rem;
+    border-left: 4px solid var(--border);
+    transition: transform 0.1s;
+}
+
+.session-item:hover {
+    background: #f9fafb;
+    transform: translateX(2px);
+}
+
+.session-item.completed {
+    border-left-color: var(--success);
+}
+
+.session-item.active {
+    border-left-color: var(--warning);
+    animation: pulse-border 1.5s infinite;
+}
+
+@keyframes pulse-border {
+    0% { border-left-color: var(--warning); }
+    50% { border-left-color: #fcd34d; } /* amber-300 */
+    100% { border-left-color: var(--warning); }
+}
+
+.session-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.session-duration {
+    font-weight: 700;
+    color: var(--primary-dark);
+    font-size: 1.1rem;
+}
+
+.session-time {
+    color: var(--text-secondary);
+}
+
+.session-comment {
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    word-break: break-word;
+}
+
+/* --- Empty State --- */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--background);
+    border-radius: 0.75rem;
+    margin-top: 1rem;
+}
+
+.empty-icon {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+}
+
+.empty-state h2 {
+    font-size: 1.25rem;
+    color: var(--text-primary);
+}
+
+.empty-state p {
+    color: var(--text-secondary);
 }
 
 /* Responsividade */
-@media (max-width: 768px) {
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .sessions-grid {
-    grid-template-columns: 1fr;
-  }
+@media (max-width: 600px) {
+    .session-manager-page {
+        padding: 1rem;
+    }
+    .session-card {
+        padding: 1rem;
+    }
+    .session-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
 }
