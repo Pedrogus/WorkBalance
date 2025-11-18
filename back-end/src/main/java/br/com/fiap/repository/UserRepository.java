@@ -14,6 +14,9 @@ public interface UserRepository {
 
         //Cria novo usuário no banco de dados.
         User create(User user);
+
+        //autoriza usuario
+        Long findUserIdByCredentials(String email, String password);
         
         //Atualiza um usuario existente
         User update(User user);

@@ -154,6 +154,32 @@ public class JdbcUserRepository implements UserRepository {
         return persistedUser;
     }
 
+    @Override
+    public Long findUserIdByCredentials(String email, String senha) {
+        String sql = "SELECT ID_USER FROM TB_USERS WHERE EMAIL = ? AND SENHA = ?";
+
+        try (Connection conn = db.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)){
+
+            stmt.setString(1, email);
+            stmt.setString(2, senha);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next())
+                {
+                    return rs.getLong("ID_USER");
+                } else {
+                    return null;
+                }
+            }
+
+        } catch (SQLException e) {
+            String msg = "Erro ao executar findUserIdByCredentials()";
+            System.err.println(msg + ": " + e.getMessage());
+
+            // Boa prática: envolver a SQLException em uma RuntimeException mais informativa
+            throw new RuntimeException(msg, e);
+        }
+    }
 
 
     //Atualiza usuario.

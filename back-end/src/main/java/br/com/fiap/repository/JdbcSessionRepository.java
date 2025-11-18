@@ -131,13 +131,11 @@ public class JdbcSessionRepository implements SessionRepository {
         // 1. DML: Usaremos CURRENT_TIMESTAMP e NULL para colunas não preenchidas.
         String sqlInsert =
                 "INSERT INTO TB_SESSIONS (ID_USER, INICIO_SESSAO, FIM_SESSAO, DURACAO_MINUTOS, PAUSA_MINUTOS, NIVEL_CANSACO, COMENTARIO) " +
-                        "VALUES (?, ?, NULL, NULL, NULL, NULL, NULL)";
+                        "VALUES (?, ?, NULL, NULL, NULL, NULL, ?)";
 
         // 2. DML de Recuperação (SELECT): Recupera o ID_SESSION e o INICIO_SESSAO exato.
-        // Usamos CURRENT_TIMESTAMP no WHERE para tentar garantir que pegamos o mais recente,
-        // embora uma SEQUENCE fosse mais precisa. Para ID_IDENTITY, MAX(ID) é comum.
         String sqlSelect =
-                "SELECT ID_SESSION, INICIO_SESSAO FROM TB_SESSIONS WHERE ID_USER = ? ORDER BY ID_SESSION DESC FETCH FIRST 1 ROW ONLY";
+                "SELECT ID_SESSION, INICIO_SESSAO, COMENTARIO FROM TB_SESSIONS WHERE ID_USER = ? ORDER BY ID_SESSION DESC FETCH FIRST 1 ROW ONLY";
 
         SessionWork persistedSession = null;
 
@@ -153,6 +151,7 @@ public class JdbcSessionRepository implements SessionRepository {
             try (PreparedStatement stmtInsert = conn.prepareStatement(sqlInsert)) {
                 stmtInsert.setLong(1, session.idUser());
                 stmtInsert.setTimestamp(2, inicio, BR_CALENDAR);
+                stmtInsert.setString(3, session.comentario());
                 int affectedRows = stmtInsert.executeUpdate();
 
                 if (affectedRows == 0) {
@@ -170,12 +169,13 @@ public class JdbcSessionRepository implements SessionRepository {
                         // Mapeamento sem depender do problemático getGeneratedKeys().
                         long idSession = rs.getLong("ID_SESSION");
                         java.sql.Timestamp inicioSessao = rs.getTimestamp("INICIO_SESSAO", BR_CALENDAR);
+                        String comentarioDoBanco = rs.getString("COMENTARIO");
 
                         persistedSession = new SessionWork(
                                 idSession,
                                 session.idUser(),
                                 inicio,
-                                null, null, null, null, null
+                                null, null, null, null, comentarioDoBanco
                         );
                     }
                 }

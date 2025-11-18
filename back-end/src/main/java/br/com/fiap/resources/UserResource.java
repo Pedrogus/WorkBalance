@@ -14,6 +14,7 @@ import org.glassfish.grizzly.http.server.Session;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Path("/api/users")
 public class UserResource {
@@ -60,8 +61,17 @@ public class UserResource {
     //Cria a sessão de um usuario
     @POST
     @Path("{id}/sessions")
-    public Response startSession(@PathParam("id") long idUser) {
-            SessionWork sessionInput = new SessionWork(
+    public Response startSession(@PathParam("id") long idUser, SessionWork sessionInput
+    ) {
+
+        // 1. Validar e Consolidar os Dados
+        if (sessionInput == null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Corpo da requisição ausente ou mal formatado.").build();
+        }
+
+        System.out.println("Comentário recebido na SessionWork (direto): " + sessionInput.comentario());
+
+            SessionWork finalSession = new SessionWork(
                     null,
                     idUser,
                     null,
@@ -69,11 +79,11 @@ public class UserResource {
                     null,
                     null,
                     null,
-                    null
+                    sessionInput.comentario()
             );
 
             try {
-                SessionWork persistedSession = sessionRepository.create(sessionInput);
+                SessionWork persistedSession = sessionRepository.create(finalSession);
 
                 if (persistedSession == null) {
                     return Response.status(Response.Status.NOT_FOUND).build();
@@ -84,6 +94,30 @@ public class UserResource {
                 System.out.println(e.getMessage());
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
             }
+    }
+
+    //Login
+    // UserResource.java (ou novo AuthResource.java)
+    @POST
+    @Path("/login")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response authenticate(User userPayLoad) {
+
+        Long userId = userRepository.findUserIdByCredentials(
+                userPayLoad.email(),
+                userPayLoad.senha()
+        );
+
+        if (userId == null) {
+            // Falha na autenticação (unauthorized)
+            return Response.status(Response.Status.UNAUTHORIZED)
+                    .entity(Map.of("message", "Credenciais inválidas"))
+                    .build();
+        }
+
+        // Sucesso na autenticação: Retorna o ID do usuário
+        return Response.ok(Map.of("idUser", userId)).build();
     }
 
     //Atualiza um usuario
