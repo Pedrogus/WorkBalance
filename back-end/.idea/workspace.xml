@@ -6,7 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="0cf7dcae-a214-4b11-b41f-a3a8fa07a628" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../front-end/src/components/SessionManager/SessionManager.js" beforeDir="false" afterPath="$PROJECT_DIR$/../front-end/src/components/SessionManager/SessionManager.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/br/com/fiap/resources/UserResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/br/com/fiap/resources/UserResource.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -78,7 +78,7 @@
         <env name="DB_PASS" value="261204" />
       </envs>
       <option name="MAIN_CLASS_NAME" value="br.com.fiap.Main" />
-      <module name="taskAPI" />
+      <module name="back-end" />
       <extension name="coverage">
         <pattern>
           <option name="PATTERN" value="br.com.fiap.*" />
@@ -117,6 +117,8 @@
       <workItem from="1763208620330" duration="607000" />
       <workItem from="1763378204143" duration="15037000" />
       <workItem from="1763409259126" duration="4498000" />
+      <workItem from="1763502242958" duration="3031000" />
+      <workItem from="1763519597610" duration="1880000" />
     </task>
     <servers />
   </component>

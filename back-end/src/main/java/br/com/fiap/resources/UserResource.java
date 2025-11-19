@@ -97,7 +97,6 @@ public class UserResource {
     }
 
     //Login
-    // UserResource.java (ou novo AuthResource.java)
     @POST
     @Path("/login")
     @Consumes(MediaType.APPLICATION_JSON)
